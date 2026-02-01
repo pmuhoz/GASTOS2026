@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>💰 Mis Gastos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            padding-bottom: 30px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 25px;
+            padding-top: 10px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+
+        .total-today {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .total-today h2 {
+            font-size: 14px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .total-today .amount {
+            font-size: 42px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-size: 16px;
+        }
+
+        #monto {
+            font-size: 32px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-btn {
+            padding: 15px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #333;
+        }
+
+        .quick-btn:active {
+            transform: scale(0.95);
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 15px 10px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .category-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-btn {
+            padding: 12px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .payment-btn.selected {
+            background: #764ba2;
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .setup-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .setup-warning h3 {
+            color: #856404;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .setup-warning p {
+            color: #856404;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .setup-warning code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .recent-expenses {
+            margin-top: 20px;
+        }
+
+        .recent-expenses h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .expense-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .expense-item .expense-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .expense-item .expense-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .expense-item .expense-category {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .expense-item .expense-description {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Mis Gastos</h1>
+            <p>Registro rápido y simple</p>
+        </div>
+
+        <div class="total-today">
+            <h2>Hoy has gastado</h2>
+            <div class="amount">$<span id="totalHoy">0</span></div>
+        </div>
+
+        <div class="card">
+            <div class="setup-warning" id="setupWarning">
+                <h3>⚠️ Configuración pendiente</h3>
+                <p>Sigue las instrucciones del archivo <code>INSTRUCCIONES.txt</code> para conectar con Google Sheets.</p>
+            </div>
+
+            <form id="gastoForm">
+                <div class="input-group">
+                    <label>💵 Monto</label>
+                    <input type="number" id="monto" placeholder="0" step="0.01" required autofocus>
+                    <div class="quick-amounts">
+                        <button type="button" class="quick-btn" onclick="setMonto(1000)">$1.000</button>
+                        <button type="button" class="quick-btn" onclick="setMonto(2000)">$2.000</button>
+                        <button type="button" class="quick-btn" onclick="setMonto(5000)">$5.000</button>
+                        <button type="button" class="quick-btn" onclick="setMonto(10000)">$10.000</button>
+                        <button type="button" class="quick-btn" onclick="setMonto(20000)">$20.000</button>
+                        <button type="button" class="quick-btn" onclick="setMonto(50000)">$50.000</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>📁 Categoría</label>
+                    <div class="categories">
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '🍔 Comida')">🍔 Comida</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '🚗 Transporte')">🚗 Transporte</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '🏠 Casa')">🏠 Casa</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '🎉 Ocio')">🎉 Ocio</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '🏥 Salud')">🏥 Salud</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '📱 Servicios')">📱 Servicios</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '🛒 Compras')">🛒 Compras</button>
+                        <button type="button" class="category-btn" onclick="selectCategory(this, '💡 Otro')">💡 Otro</button>
+                    </div>
+                    <input type="hidden" id="categoria" required>
+                </div>
+
+                <div class="input-group">
+                    <label>💳 Método de pago</label>
+                    <div class="payment-methods">
+                        <button type="button" class="payment-btn" onclick="selectPayment(this, '💵 Efectivo')">💵 Efectivo</button>
+                        <button type="button" class="payment-btn" onclick="selectPayment(this, '💳 Tarjeta')">💳 Tarjeta</button>
+                        <button type="button" class="payment-btn" onclick="selectPayment(this, '📱 Transfer')">📱 Transfer</button>
+                    </div>
+                    <input type="hidden" id="metodoPago" required>
+                </div>
+
+                <div class="input-group">
+                    <label>📝 Descripción (opcional)</label>
+                    <textarea id="descripcion" placeholder="Ej: Almuerzo en restaurant, Uber al trabajo..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">✅ Guardar Gasto</button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Guardando...</p>
+                </div>
+
+                <div class="message" id="message"></div>
+            </form>
+
+            <div class="recent-expenses" id="recentExpenses" style="display: none;">
+                <h3>📊 Últimos gastos</h3>
+                <div id="expensesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-AHOWcDn_4nS0Wyzw-8GR8beflDInb6xdD5YcaDFp06CJT5z-QPUOiJMgd7AKm9qcUQ/exec';
+
+        let selectedCategory = '';
+        let selectedPayment = '';
+        let todayExpenses = [];
+
+        // Función para configurar el monto rápido
+        function setMonto(valor) {
+            document.getElementById('monto').value = valor;
+        }
+
+        // Función para seleccionar categoría
+        function selectCategory(btn, categoria) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedCategory = categoria;
+            document.getElementById('categoria').value = categoria;
+        }
+
+        // Función para seleccionar método de pago
+        function selectPayment(btn, metodo) {
+            document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedPayment = metodo;
+            document.getElementById('metodoPago').value = metodo;
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = 'message ' + type;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // Función para actualizar el total del día
+        function updateTotalToday() {
+            const today = new Date().toLocaleDateString('es-CL');
+            const total = todayExpenses
+                .filter(e => new Date(e.fecha).toLocaleDateString('es-CL') === today)
+                .reduce((sum, e) => sum + parseFloat(e.monto), 0);
+            
+            document.getElementById('totalHoy').textContent = total.toLocaleString('es-CL');
+        }
+
+        // Función para agregar gasto a la lista de recientes
+        function addToRecentExpenses(gasto) {
+            todayExpenses.unshift(gasto);
+            if (todayExpenses.length > 5) todayExpenses.pop();
+            
+            const expensesList = document.getElementById('expensesList');
+            const recentExpenses = document.getElementById('recentExpenses');
+            
+            expensesList.innerHTML = todayExpenses.map(e => `
+                <div class="expense-item">
+                    <div class="expense-header">
+                        <span class="expense-amount">$${parseFloat(e.monto).toLocaleString('es-CL')}</span>
+                        <span class="expense-category">${e.categoria}</span>
+                    </div>
+                    ${e.descripcion ? `<div class="expense-description">${e.descripcion}</div>` : ''}
+                </div>
+            `).join('');
+            
+            recentExpenses.style.display = 'block';
+            updateTotalToday();
+        }
+
+        // Función para limpiar el formulario
+        function resetForm() {
+            document.getElementById('gastoForm').reset();
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('selected'));
+            selectedCategory = '';
+            selectedPayment = '';
+            document.getElementById('monto').focus();
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('gastoForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Validar que la URL esté configurada
+            if (SCRIPT_URL === 'TU_URL_AQUI') {
+                showMessage('⚠️ Debes configurar la URL del script primero', 'error');
+                return;
+            }
+
+            const monto = document.getElementById('monto').value;
+            const categoria = document.getElementById('categoria').value;
+            const metodoPago = document.getElementById('metodoPago').value;
+            const descripcion = document.getElementById('descripcion').value;
+
+            if (!categoria) {
+                showMessage('Por favor selecciona una categoría', 'error');
+                return;
+            }
+
+            if (!metodoPago) {
+                showMessage('Por favor selecciona un método de pago', 'error');
+                return;
+            }
+
+            const gasto = {
+                fecha: new Date().toISOString(),
+                monto: parseFloat(monto),
+                categoria: categoria,
+                metodoPago: metodoPago,
+                descripcion: descripcion
+            };
+
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(gasto)
+                });
+
+                // Con no-cors no podemos leer la respuesta, así que asumimos éxito
+                showMessage('✅ ¡Gasto guardado exitosamente!', 'success');
+                addToRecentExpenses(gasto);
+                resetForm();
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Error al guardar. Verifica tu conexión.', 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        // Verificar si la URL está configurada al cargar
+        window.addEventListener('load', function() {
+            if (SCRIPT_URL !== 'TU_URL_AQUI') {
+                document.getElementById('setupWarning').style.display = 'none';
+            }
+        });
+
+        // Cargar total del día desde localStorage
+        const savedExpenses = localStorage.getItem('todayExpenses');
+        if (savedExpenses) {
+            todayExpenses = JSON.parse(savedExpenses);
+            updateTotalToday();
+            
+            if (todayExpenses.length > 0) {
+                const expensesList = document.getElementById('expensesList');
+                const recentExpenses = document.getElementById('recentExpenses');
+                
+                expensesList.innerHTML = todayExpenses.slice(0, 5).map(e => `
+                    <div class="expense-item">
+                        <div class="expense-header">
+                            <span class="expense-amount">$${parseFloat(e.monto).toLocaleString('es-CL')}</span>
+                            <span class="expense-category">${e.categoria}</span>
+                        </div>
+                        ${e.descripcion ? `<div class="expense-description">${e.descripcion}</div>` : ''}
+                    </div>
+                `).join('');
+                
+                recentExpenses.style.display = 'block';
+            }
+        }
+
+        // Guardar gastos en localStorage cuando se agreguen
+        const originalAddToRecentExpenses = addToRecentExpenses;
+        addToRecentExpenses = function(gasto) {
+            originalAddToRecentExpenses(gasto);
+            localStorage.setItem('todayExpenses', JSON.stringify(todayExpenses));
+        };
+    </script>
+</body>
+</html>
